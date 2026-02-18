@@ -1,0 +1,94 @@
+// Feature 6: History Management
+
+import type { KiroHistoryEntry, KiroToolSpec } from "./transform.js";
+
+export const HISTORY_LIMIT = 850000;
+
+export function sanitizeHistory(history: KiroHistoryEntry[]): KiroHistoryEntry[] {
+  const result: KiroHistoryEntry[] = [];
+  for (let i = 0; i < history.length; i++) {
+    const m = history[i];
+    if (!m) continue;
+    if (m.assistantResponseMessage?.toolUses) {
+      const next = history[i + 1];
+      if (next?.userInputMessage?.userInputMessageContext?.toolResults) result.push(m);
+    } else if (m.userInputMessage?.userInputMessageContext?.toolResults) {
+      const prev = result[result.length - 1];
+      if (prev?.assistantResponseMessage?.toolUses) result.push(m);
+    } else {
+      result.push(m);
+    }
+  }
+  if (result.length > 0) {
+    const first = result[0];
+    if (!first?.userInputMessage || first.userInputMessage.userInputMessageContext?.toolResults) return [];
+  }
+  return result;
+}
+
+export function injectSyntheticToolCalls(history: KiroHistoryEntry[]): KiroHistoryEntry[] {
+  const validIds = new Set<string>();
+  for (const entry of history) {
+    for (const tu of entry.assistantResponseMessage?.toolUses ?? []) {
+      if (tu.toolUseId) validIds.add(tu.toolUseId);
+    }
+  }
+  const result: KiroHistoryEntry[] = [];
+  for (const entry of history) {
+    const toolResults = entry.userInputMessage?.userInputMessageContext?.toolResults;
+    if (toolResults) {
+      const orphaned = toolResults.filter((tr) => !validIds.has(tr.toolUseId));
+      if (orphaned.length > 0) {
+        result.push({
+          assistantResponseMessage: {
+            content: "Tool calls were made.",
+            toolUses: orphaned.map((tr) => ({ name: "unknown_tool", toolUseId: tr.toolUseId, input: {} })),
+          },
+        });
+        for (const tr of orphaned) validIds.add(tr.toolUseId);
+      }
+    }
+    result.push(entry);
+  }
+  return result;
+}
+
+export function truncateHistory(history: KiroHistoryEntry[], limit: number): KiroHistoryEntry[] {
+  let sanitized = sanitizeHistory(history);
+  let historySize = JSON.stringify(sanitized).length;
+  while (historySize > limit && sanitized.length > 2) {
+    sanitized.shift();
+    while (sanitized.length > 0 && !sanitized[0]?.userInputMessage) sanitized.shift();
+    sanitized = sanitizeHistory(sanitized);
+    historySize = JSON.stringify(sanitized).length;
+  }
+  return injectSyntheticToolCalls(sanitized);
+}
+
+export function extractToolNamesFromHistory(history: KiroHistoryEntry[]): Set<string> {
+  const names = new Set<string>();
+  for (const entry of history) {
+    for (const tu of entry.assistantResponseMessage?.toolUses ?? []) {
+      if (tu.name) names.add(tu.name);
+    }
+  }
+  return names;
+}
+
+export function addPlaceholderTools(tools: KiroToolSpec[], history: KiroHistoryEntry[]): KiroToolSpec[] {
+  const historyNames = extractToolNamesFromHistory(history);
+  if (historyNames.size === 0) return tools;
+  const existing = new Set(tools.map((t) => t.toolSpecification?.name).filter(Boolean));
+  const missing = Array.from(historyNames).filter((n) => !existing.has(n));
+  if (missing.length === 0) return tools;
+  return [
+    ...tools,
+    ...missing.map((name) => ({
+      toolSpecification: {
+        name,
+        description: "Tool",
+        inputSchema: { json: { type: "object" as const, properties: {} } },
+      },
+    })),
+  ];
+}

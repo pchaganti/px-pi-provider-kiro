@@ -1,0 +1,254 @@
+// Feature 2: Model Definitions
+
+// Valid Kiro model IDs - API accepts friendly names directly
+export const KIRO_MODEL_IDS = new Set([
+  "claude-opus-4.6",
+  "claude-opus-4.6-1m",
+  "claude-sonnet-4.6",
+  "claude-sonnet-4.6-1m",
+  "claude-opus-4.5",
+  "claude-sonnet-4.5",
+  "claude-sonnet-4.5-1m",
+  "claude-sonnet-4",
+  "claude-haiku-4.5",
+  "deepseek-3.2",
+  "kimi-k2.5",
+  "minimax-m2.1",
+  "glm-4.7",
+  "glm-4.7-flash",
+  "qwen3-coder-next",
+  "agi-nova-beta-1m",
+  "qwen3-coder-480b",
+]);
+
+export function resolveKiroModel(modelId: string): string {
+  // Convert pi format (dashes) to kiro format (dots): claude-opus-4-6 -> claude-opus-4.6
+  // Only convert digit-dash-digit patterns (version numbers like 4-6 -> 4.6)
+  const kiroId = modelId.replace(/(\d)-(\d)/g, "$1.$2");
+  if (!KIRO_MODEL_IDS.has(kiroId)) {
+    throw new Error(`Unknown Kiro model ID: ${modelId}`);
+  }
+  return kiroId;
+}
+
+const BASE_URL = "https://q.us-east-1.amazonaws.com/generateAssistantResponse";
+const ZERO_COST = Object.freeze({ input: 0, output: 0, cacheRead: 0, cacheWrite: 0 });
+
+export const kiroModels = [
+  // Claude Opus 4.6
+  {
+    id: "claude-opus-4-6",
+    name: "Claude Opus 4.6",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 200000,
+    maxTokens: 32768,
+  },
+  {
+    id: "claude-opus-4-6-1m",
+    name: "Claude Opus 4.6 (1M)",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 1000000,
+    maxTokens: 32768,
+  },
+  // Claude Sonnet 4.6
+  {
+    id: "claude-sonnet-4-6",
+    name: "Claude Sonnet 4.6",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 200000,
+    maxTokens: 65536,
+  },
+  {
+    id: "claude-sonnet-4-6-1m",
+    name: "Claude Sonnet 4.6 (1M)",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 1000000,
+    maxTokens: 65536,
+  },
+  // Claude Opus 4.5
+  {
+    id: "claude-opus-4-5",
+    name: "Claude Opus 4.5",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 200000,
+    maxTokens: 32768,
+  },
+  // Claude Sonnet 4.5
+  {
+    id: "claude-sonnet-4-5",
+    name: "Claude Sonnet 4.5",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 200000,
+    maxTokens: 65536,
+  },
+  {
+    id: "claude-sonnet-4-5-1m",
+    name: "Claude Sonnet 4.5 (1M)",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 1000000,
+    maxTokens: 65536,
+  },
+  // Claude Sonnet 4
+  {
+    id: "claude-sonnet-4",
+    name: "Claude Sonnet 4",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 200000,
+    maxTokens: 65536,
+  },
+  // Claude Haiku 4.5
+  {
+    id: "claude-haiku-4-5",
+    name: "Claude Haiku 4.5",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: false,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 200000,
+    maxTokens: 65536,
+  },
+  // DeepSeek
+  {
+    id: "deepseek-3-2",
+    name: "DeepSeek 3.2",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 128000,
+    maxTokens: 8192,
+  },
+  // Kimi (Moonshot AI)
+  {
+    id: "kimi-k2-5",
+    name: "Kimi K2.5",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 200000,
+    maxTokens: 8192,
+  },
+  // MiniMax
+  {
+    id: "minimax-m2-1",
+    name: "MiniMax M2.1",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: false,
+    input: ["text"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 128000,
+    maxTokens: 8192,
+  },
+  // GLM (Zhipu AI)
+  {
+    id: "glm-4-7",
+    name: "GLM 4.7",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 128000,
+    maxTokens: 8192,
+  },
+  {
+    id: "glm-4-7-flash",
+    name: "GLM 4.7 Flash",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: false,
+    input: ["text"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 128000,
+    maxTokens: 8192,
+  },
+  // Qwen (Alibaba)
+  {
+    id: "qwen3-coder-next",
+    name: "Qwen3 Coder Next",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 128000,
+    maxTokens: 8192,
+  },
+  {
+    id: "qwen3-coder-480b",
+    name: "Qwen3 Coder 480B",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 128000,
+    maxTokens: 8192,
+  },
+  // AGI Nova
+  {
+    id: "agi-nova-beta-1m",
+    name: "AGI Nova Beta (1M)",
+    api: "kiro-api" as const,
+    provider: "kiro" as const,
+    baseUrl: BASE_URL,
+    reasoning: true,
+    input: ["text", "image"] as ("text" | "image")[],
+    cost: ZERO_COST,
+    contextWindow: 1000000,
+    maxTokens: 65536,
+  },
+];
