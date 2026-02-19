@@ -1,8 +1,25 @@
 {
   "name": "pi-provider-kiro",
-  "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "description": "pi extension for Kiro API (AWS CodeWhisperer/Q) — 17 models across 7 families with OAuth authentication",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikeyobrien/pi-provider-kiro.git"
+  },
+  "keywords": [
+    "pi",
+    "kiro",
+    "aws",
+    "codewhisperer",
+    "ai",
+    "provider"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "check": "tsc --noEmit",
@@ -10,7 +27,8 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
   },
   "pi": {
     "extensions": [
