@@ -50,7 +50,7 @@ On 413/too-large: up to 3 retries, each multiplying `reductionFactor` by 0.7. Af
 2. OAuth device code flow (interactive, opens browser)
 
 ### Auth Methods
-- `idc`: AWS Builder ID or IAM Identity Center (SSO). Refresh via SSO OIDC endpoint. Token format: `refreshToken|clientId|clientSecret|idc`
+- `idc`: AWS Builder ID or IAM Identity Center (SSO). Refresh via SSO OIDC endpoint. Token format: `refreshToken|clientId|clientSecret|idc`. Preferred — has clientId/clientSecret for refresh.
 - `desktop`: Kiro desktop app credentials. Refresh via `prod.{region}.auth.desktop.kiro.dev`. Token format: `refreshToken|desktop`
 
 ## Development

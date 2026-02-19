@@ -165,6 +165,42 @@ describe("Feature 3: OAuth — AWS Builder ID", () => {
       vi.unstubAllGlobals();
     });
 
+    it("throws on desktop token refresh failure", async () => {
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+      vi.stubGlobal("fetch", mockFetch);
+
+      await expect(
+        refreshKiroToken({
+          refresh: "desk_rt|desktop",
+          access: "old",
+          expires: 0,
+          region: "us-east-1",
+        } as any),
+      ).rejects.toThrow("Desktop token refresh failed: 401");
+      vi.unstubAllGlobals();
+    });
+
+    it("throws on desktop token refresh with missing accessToken", async () => {
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ expiresIn: 3600 }),
+      });
+      vi.stubGlobal("fetch", mockFetch);
+
+      await expect(
+        refreshKiroToken({
+          refresh: "desk_rt|desktop",
+          access: "old",
+          expires: 0,
+          region: "us-east-1",
+        } as any),
+      ).rejects.toThrow("Desktop token refresh: missing accessToken");
+      vi.unstubAllGlobals();
+    });
+
     it("uses region from credentials for IDC refresh", async () => {
       const mockFetch = vi.fn().mockResolvedValueOnce({
         ok: true,

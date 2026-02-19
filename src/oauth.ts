@@ -8,7 +8,7 @@ import type { OAuthCredentials, OAuthLoginCallbacks } from "@mariozechner/pi-ai"
 
 export const SSO_OIDC_ENDPOINT = "https://oidc.us-east-1.amazonaws.com";
 export const BUILDER_ID_START_URL = "https://view.awsapps.com/start";
-export const KIRO_DESKTOP_REFRESH_URL = "https://prod.{{region}}.auth.desktop.kiro.dev/refreshToken";
+export const KIRO_DESKTOP_REFRESH_URL = "https://prod.{region}.auth.desktop.kiro.dev/refreshToken";
 export const SSO_SCOPES = [
   "codewhisperer:completions",
   "codewhisperer:analysis",
@@ -123,7 +123,7 @@ export async function refreshKiroToken(credentials: OAuthCredentials): Promise<O
 
   if (authMethod === "desktop") {
     // Kiro desktop app tokens use a different refresh endpoint
-    const url = KIRO_DESKTOP_REFRESH_URL.replace("{{region}}", region);
+    const url = KIRO_DESKTOP_REFRESH_URL.replace("{region}", region);
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", "User-Agent": "pi-cli" },
@@ -131,6 +131,7 @@ export async function refreshKiroToken(credentials: OAuthCredentials): Promise<O
     });
     if (!response.ok) throw new Error(`Desktop token refresh failed: ${response.status}`);
     const data = (await response.json()) as { accessToken: string; refreshToken?: string; expiresIn: number };
+    if (!data.accessToken) throw new Error("Desktop token refresh: missing accessToken");
     return {
       refresh: `${data.refreshToken || refreshToken}|desktop`,
       access: data.accessToken,
