@@ -23,33 +23,25 @@ All models are free to use through Kiro.
 
 ## Setup
 
-1. Install [kiro-cli](https://kiro.dev) or have an AWS Builder ID
-2. Clone this repo into your pi extensions directory:
+Install the provider:
 
 ```bash
-git clone <repo-url> pi-provider-kiro
-cd pi-provider-kiro
-npm install
-npm run build
+pi install pi-provider-kiro
 ```
 
-3. The extension auto-registers via `package.json` → `pi.extensions`:
+Or install via npm directly:
 
-```json
-{
-  "pi": {
-    "extensions": ["./dist/index.js"]
-  }
-}
+```bash
+npm install -g pi-provider-kiro
 ```
 
-4. Log in:
+Then log in:
 
 ```
 /login kiro
 ```
 
-This opens a browser for AWS Builder ID authentication. If you have kiro-cli installed and already logged in, credentials are picked up automatically.
+This opens a browser for AWS Builder ID authentication. If you have [kiro-cli](https://kiro.dev) installed and already logged in, credentials are picked up automatically.
 
 ## Usage
 
@@ -91,4 +83,4 @@ See [AGENTS.md](AGENTS.md) for detailed development guidance and [.agents/summar
 
 ## License
 
-Private — not published to npm.
+MIT
